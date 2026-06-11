@@ -1,8 +1,70 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AkademikController;
+use App\Http\Controllers\Api\KategoriAsetController;
+use App\Http\Controllers\Api\DataUserController;
+use App\Http\Controllers\Api\AsetController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\PeminjamanController;
+use App\Http\Controllers\Api\LogAuditController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    Route::get('/faculties', [AkademikController::class, 'getAllFaculties']);
+    Route::get('/faculties/{faculty_id}/prodi', [AkademikController::class, 'getProdiByFaculty']);
+    Route::put('/profile/update', [ProfileController::class, 'updateProfile']);
+    Route::delete('/profile/delete', [ProfileController::class, 'destroyProfile']);
+
+    Route::post('/borrowing/checkout', [PeminjamanController::class, 'checkout']);
+    Route::get('/assets/scan/{kode_qr}', [AsetController::class, 'showByQr']);
+
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/faculties', [AkademikController::class, 'storeFaculty']);
+        Route::get('/faculties/{id}', [AkademikController::class, 'showFaculty']);
+        Route::put('/faculties/{id}', [AkademikController::class, 'updateFaculty']);
+        Route::delete('/faculties/{id}', [AkademikController::class, 'destroyFaculty']);
+
+        Route::get('/prodi', [AkademikController::class, 'getAllProdi']);
+        Route::post('/prodi', [AkademikController::class, 'storeProdi']);
+        Route::get('/prodi/{id}', [AkademikController::class, 'showProdi']);
+        Route::put('/prodi/{id}', [AkademikController::class, 'updateProdi']);
+        Route::delete('/prodi/{id}', [AkademikController::class, 'destroyProdi']);
+
+        Route::delete('/profiles/{id}', [ProfileController::class, 'destroyProfile']);
+
+        Route::get('/data-users', [DataUserController::class, 'index']);
+        Route::post('/data-users', [DataUserController::class, 'store']);
+        Route::get('/data-users/{id}', [DataUserController::class, 'show']);
+        Route::put('/data-users/{id}', [DataUserController::class, 'update']);
+        Route::delete('/data-users/{id}', [DataUserController::class, 'destroy']);
+    });
+
+    Route::middleware('role:admin,kerumahtanggaan')->group(function () {
+        Route::post('/borrowing/checkin', [PeminjamanController::class, 'checkin']);
+        Route::get('/borrowing/history', [PeminjamanController::class, 'getHistory']);
+
+        Route::get('/categories', [KategoriAsetController::class, 'index']);
+        Route::post('/categories', [KategoriAsetController::class, 'store']);
+        Route::get('/categories/{id}', [KategoriAsetController::class, 'show']);
+        Route::put('/categories/{id}', [KategoriAsetController::class, 'update']);
+        Route::delete('/categories/{id}', [KategoriAsetController::class, 'destroy']);
+
+        Route::get('/assets', [AsetController::class, 'index']);
+        Route::post('/assets', [AsetController::class, 'store']);
+        Route::put('/assets/{id}', [AsetController::class, 'update']);
+        Route::get('/audit-logs', [LogAuditController::class, 'getAuditLogs']);
+
+        Route::get('/profiles', [ProfileController::class, 'getAllProfiles']);
+        Route::get('/profiles/{id}', [ProfileController::class, 'getProfileById']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/assets/{id}', [AsetController::class, 'destroy']);
+    });
+});
