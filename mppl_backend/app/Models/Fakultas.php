@@ -13,4 +13,9 @@ class Fakultas extends Model
     {
         return $this->hasMany(ProgramStudi::class, 'fakultas_id');
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'fakultas_id');
+    }
 }

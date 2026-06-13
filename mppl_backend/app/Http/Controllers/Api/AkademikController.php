@@ -11,7 +11,7 @@ class AkademikController extends Controller
 {
     public function getAllFaculties()
     {
-        $fakultas = Fakultas::all();
+        $fakultas = Fakultas::all()->sortByDesc('id')->values();
         return response()->json([
             'status' => 'success',
             'data' => $fakultas
@@ -105,7 +105,7 @@ class AkademikController extends Controller
 
     public function getAllProdi()
     {
-        $prodi = ProgramStudi::with('fakultas')->get();
+        $prodi = ProgramStudi::with('fakultas')->orderBy('id', 'desc')->get();
         return response()->json([
             'status' => 'success',
             'data' => $prodi

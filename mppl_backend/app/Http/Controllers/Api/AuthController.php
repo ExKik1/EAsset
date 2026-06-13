@@ -27,14 +27,10 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'nim_nip' => null,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'umum',
-            'fakultas_id' => null,
-            'program_studi_id' => null,
-            'alamat' => null,
             'profile' => 'default-profile.png',
         ]);
 

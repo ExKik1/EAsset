@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('nim_nip')->unique();
+            $table->string('nim_nip')->unique()->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('role', ['admin', 'kerumahtanggaan', 'umum'])->default('umum');
             $table->text('alamat')->nullable();
-            $table->string('profile')->nullable(); 
-            $table->foreignId('program_studi_id')->nullable()->constrained('program_studi')->onDelete('set null');
+            $table->string('profile')->nullable();
             $table->foreignId('fakultas_id')->nullable()->constrained('fakultas')->onDelete('set null');
-            
+            $table->foreignId('program_studi_id')->nullable()->constrained('program_studi')->onDelete('set null');
             $table->timestamps();
         });
 
