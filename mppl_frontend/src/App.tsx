@@ -13,6 +13,9 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import FakultasPage from "./pages/admin/faculties/FakultasPage";
 import FakultasCreate from "./pages/admin/faculties/FakultasCreate";
 import FakultasEdit from "./pages/admin/faculties/FakultasEdit";
+import ProdiPage from "./pages/admin/prodi/ProdiPage";
+import ProdiCreate from "./pages/admin/prodi/ProdiCreate";
+import ProdiEdit from "./pages/admin/prodi/ProdiEdit";
 
 function App() {
   return (
@@ -45,9 +48,14 @@ function App() {
               </DashboardLayout>
             }
           />
+
           <Route path="/faculties" element={<FakultasPage />} />
           <Route path="/faculties/create" element={<FakultasCreate />} />
           <Route path="/faculties/edit/:id" element={<FakultasEdit />} />
+
+          <Route path="/prodi" element={<ProdiPage />} />
+          <Route path="/prodi/create" element={<ProdiCreate />} />
+          <Route path="/prodi/edit/:id" element={<ProdiEdit />} />
 
           <Route path="/history" element={<HistoryLog />} />
           <Route path="/profile" element={<UserProfile />} />

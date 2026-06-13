@@ -180,7 +180,7 @@ export default function FakultasEdit() {
                     onChange={(e) =>
                       setForm({ ...form, kode_fakultas: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-semibold text-slate-800 uppercase tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-semibold text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
                 </div>
 

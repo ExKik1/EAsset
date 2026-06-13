@@ -1,35 +1,43 @@
 import { Link } from "react-router-dom";
-import { Edit2, Trash2, School, RefreshCw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Edit2, Trash2, GraduationCap, School, RefreshCw } from "lucide-react";
+import { motion } from "motion/react";
 
-interface Fakultas {
+interface FakultasRelation {
   id: number;
   kode_fakultas: string;
   nama_fakultas: string;
+}
+
+interface Prodi {
+  id: number;
+  fakultas_id: number;
+  kode_prodi: string;
+  nama_prodi: string;
   deskripsi: string | null;
   created_at: string;
+  fakultas?: FakultasRelation;
 }
 
-interface FakultasTableProps {
-  currentData: Fakultas[];
+interface ProdiTableProps {
+  currentData: Prodi[];
   isFetchLoading: boolean;
   indexOfFirstItem: number;
-  onOpenDeleteModal: (item: Fakultas) => void;
+  onOpenDeleteModal: (item: Prodi) => void;
 }
 
-export default function FakultasTable({
+export default function ProdiTable({
   currentData,
   isFetchLoading,
   indexOfFirstItem,
   onOpenDeleteModal,
-}: FakultasTableProps) {
+}: ProdiTableProps) {
   return (
     <div className="overflow-x-auto w-full">
       <table className="w-full text-left border-collapse table-auto">
         <thead className="relative bg-brand-gradient text-white overflow-hidden">
           <tr className="absolute inset-0 pointer-events-none overflow-hidden block w-full h-full">
             <td
-              colSpan={5}
+              colSpan={6}
               className="absolute inset-0 p-0 block w-full h-full"
             >
               <motion.div
@@ -47,13 +55,16 @@ export default function FakultasTable({
             </td>
           </tr>
 
-          <tr className="border-b border-white/10 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
+          <tr className="border-b border-white/10 font-black text-[10px] sm:text-[11px] uppercase tracking-wider">
             <th className="py-3.5 px-4 w-12 text-center text-white">No</th>
-            <th className="py-3.5 px-4 w-40 text-white">Kode Fakultas</th>
-            <th className="py-3.5 px-4 min-w-[200px] text-white">
-              Nama Fakultas
+            <th className="py-3.5 px-4 w-36 text-white">Kode Prodi</th>
+            <th className="py-3.5 px-4 min-w-[180px] text-white">
+              Nama Program Studi
             </th>
-            <th className="py-3.5 px-4 min-w-[250px] text-white">Deskripsi</th>
+            <th className="py-3.5 px-4 min-w-[180px] text-white">
+              Fakultas Induk
+            </th>
+            <th className="py-3.5 px-4 min-w-[200px] text-white">Deskripsi</th>
             <th className="py-3.5 px-4 w-28 text-center text-white">Aksi</th>
           </tr>
         </thead>
@@ -62,7 +73,7 @@ export default function FakultasTable({
           {isFetchLoading ? (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="py-8 px-4 text-center text-slate-400 font-medium"
               >
                 <div className="flex items-center justify-center gap-2">
@@ -82,13 +93,22 @@ export default function FakultasTable({
                 </td>
                 <td className="py-3.5 px-4 font-bold text-slate-800">
                   <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-mono text-xs tracking-wider">
-                    {item.kode_fakultas}
+                    {item.kode_prodi}
                   </span>
                 </td>
                 <td className="py-3.5 px-4 font-semibold text-slate-800">
                   <div className="flex items-center gap-2">
+                    <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>{item.nama_prodi}</span>
+                  </div>
+                </td>
+                <td className="py-3.5 px-4 font-medium text-slate-600">
+                  <div className="flex items-center gap-1.5">
                     <School className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{item.nama_fakultas}</span>
+                    <span>
+                      {item.fakultas?.nama_fakultas ||
+                        `ID Fakultas: ${item.fakultas_id}`}
+                    </span>
                   </div>
                 </td>
                 <td
@@ -104,7 +124,7 @@ export default function FakultasTable({
                 <td className="py-3.5 px-4 text-center">
                   <div className="flex items-center justify-center gap-1.5">
                     <Link
-                      to={`/faculties/edit/${item.id}`}
+                      to={`/prodi/edit/${item.id}`}
                       className="p-1.5 text-blue-600 bg-blue-50 border border-blue-100 rounded hover:bg-blue-100 transition cursor-pointer"
                       title="Ubah Data"
                     >
@@ -125,10 +145,10 @@ export default function FakultasTable({
           ) : (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="py-12 px-4 text-center text-slate-400 font-medium"
               >
-                Data master fakultas kosong atau tidak ditemukan.
+                Data master program studi kosong atau tidak ditemukan.
               </td>
             </tr>
           )}

@@ -176,7 +176,6 @@ export default function SidebarMain({
         </div>
       )}
 
-      {/* 4. MANAJEMEN PENGGUNA (Admin Only) */}
       {userRole === "admin" && (
         <Link
           to="/admin/users"

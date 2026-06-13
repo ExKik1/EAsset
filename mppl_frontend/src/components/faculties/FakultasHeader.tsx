@@ -28,7 +28,7 @@ export default function FakultasHeader({
           <button
             onClick={onRefresh}
             disabled={isFetchLoading}
-            className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-sm cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-sm rounded-md cursor-pointer disabled:opacity-50"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isFetchLoading ? "animate-spin" : ""}`}
@@ -37,7 +37,7 @@ export default function FakultasHeader({
           </button>
           <Link
             to="/faculties/create"
-            className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-white bg-brand-gradient transition shadow-sm cursor-pointer"
+            className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-white bg-brand-gradient transition shadow-sm rounded-md cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             Tambah Fakultas
