@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('waktu_pinjam');
             $table->text('deskripsi_pinjam')->nullable();
             $table->string('jaminan');
+            $table->string('kode_peminjaman')->unique();
             $table->dateTime('waktu_kembali')->nullable();
             $table->enum('kondisi_kembali', ['bagus', 'rusak'])->nullable();
             $table->string('foto_baru')->nullable();

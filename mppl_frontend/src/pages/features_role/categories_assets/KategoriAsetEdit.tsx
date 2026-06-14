@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
   Save,
-  PlusCircle,
   RefreshCw,
   FileText,
+  Edit3,
   RotateCcw,
 } from "lucide-react";
 import { useAuthSession } from "../../../hooks/useAuthSession";
@@ -14,49 +14,77 @@ import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import api from "../../../utils/api";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { NotificationToast } from "../../../components/ui/NotificationToast";
+import GenerateKategoriAset from "../../../components/categories_assets/GenerateKategoriAset";
 
-export default function FakultasCreate() {
-  useDocumentTitle("Tambah Master Fakultas Baru");
+export default function KategoriEdit() {
+  useDocumentTitle("Ubah Data Master Kategori Aset");
   const { token } = useAuthSession();
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [form, setForm] = useState({
-    kode_fakultas: "",
-    nama_fakultas: "",
+    kode_kategori: "",
+    nama_kategori: "",
     deskripsi: "",
   });
 
-  const [toastMessages, setToastMessages] = useState<string[]>([]);
-  const [toastType, setToastType] = useState<"success" | "danger">("success");
-
   const handleResetForm = () => {
     setForm({
-      kode_fakultas: "",
-      nama_fakultas: "",
+      kode_kategori: "",
+      nama_kategori: "",
       deskripsi: "",
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const [toastMessages, setToastMessages] = useState<string[]>([]);
+  const [toastType, setToastType] = useState<"success" | "danger">("success");
+
+  useEffect(() => {
+    if (token && id) fetchExistingKategori();
+  }, [token, id]);
+
+  const fetchExistingKategori = async () => {
     try {
-      await api.post("/faculties", form, {
+      const response = await api.get(`/categories/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = response.data.data || response.data;
+      setForm({
+        kode_kategori: data.kode_kategori || "",
+        nama_kategori: data.nama_kategori || "",
+        deskripsi: data.deskripsi || "",
+      });
+    } catch (err) {
+      console.error(err);
+      setToastType("danger");
+      setToastMessages([
+        "Gagal mengambil data detail kategori aset dari server.",
+      ]);
+      setTimeout(() => {
+        navigate("/categories-assets");
+      }, 1500);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitLoading(true);
+    try {
+      await api.put(`/categories/${id}`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setToastType("success");
       setToastMessages([
-        "Fakultas baru sukses ditambahkan ke database master data!",
+        "Perubahan master data kategori aset berhasil disimpan!",
       ]);
 
       setTimeout(() => {
-        navigate("/faculties");
+        navigate("/categories-assets");
       }, 1500);
     } catch (err: any) {
       console.error(err);
-
       const dataResponse = err.response?.data;
       let parsedMessages: string[] = [];
 
@@ -68,23 +96,21 @@ export default function FakultasCreate() {
           parsedMessages = nestedErrors;
         } else if (nestedErrors && typeof nestedErrors === "object") {
           parsedMessages = Object.values(nestedErrors).flat() as string[];
-        } else if (Array.isArray(mainMessage)) {
-          parsedMessages = mainMessage;
-        } else if (mainMessage && typeof mainMessage === "object") {
-          parsedMessages = Object.values(mainMessage).flat() as string[];
         } else if (typeof mainMessage === "string") {
           parsedMessages = [mainMessage];
         }
       }
 
       if (parsedMessages.length === 0) {
-        parsedMessages = ["Terjadi galat saat menyimpan data master fakultas."];
+        parsedMessages = [
+          "Terjadi galat saat memperbarui data master kategori aset.",
+        ];
       }
 
       setToastType("danger");
       setToastMessages(parsedMessages);
     } finally {
-      setIsLoading(false);
+      setIsSubmitLoading(false);
     }
   };
 
@@ -96,24 +122,24 @@ export default function FakultasCreate() {
         onClose={() => setToastMessages([])}
       />
 
-      <div className="bg-slate-50 text-slate-900 font-sans flex flex-col min-h-screen relative w-full">
+      <div className="bg-slate-50 text-slate-900 font-sans flex flex-col w-full relative">
         <div className="flex flex-col w-full p-6 md:p-8 lg:p-10 space-y-4 sm:space-y-6 max-w-full mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 border border-info-border shadow-sm">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <PlusCircle className="w-5 h-5 text-primary" />
+                <Edit3 className="w-5 h-5 text-primary" />
                 <h3 className="text-xl sm:text-2xl font-black color-span-g tracking-tight">
-                  Tambah Data Fakultas
+                  Ubah Kategori Aset
                 </h3>
               </div>
               <p className="text-slate-500 text-xs sm:text-sm">
-                Formulir pembuatan entitas master data fakultas baru pada
-                lingkungan civitas akademik.
+                Formulir pembaruan entitas master data kategori aset pada sistem
+                inventarisasi logistik.
               </p>
             </div>
 
             <Link
-              to="/faculties"
+              to="/categories-assets"
               className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition rounded-md shadow-sm cursor-pointer h-fit self-start sm:self-auto"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -121,13 +147,10 @@ export default function FakultasCreate() {
             </Link>
           </div>
 
-          <div className="bg-white border border-info-border shadow-md overflow-hidden">
+          <div className="bg-white border border-info-border shadow-md overflow-hidden mb-2">
             <div className="relative overflow-hidden px-6 py-4 bg-brand-gradient border-b border-slate-200/70 flex items-center gap-2 text-white">
               <motion.div
-                animate={{
-                  x: ["-100%", "200%"],
-                  opacity: [0, 0.2, 0],
-                }}
+                animate={{ x: ["-100%", "200%"], opacity: [0, 0.2, 0] }}
                 transition={{
                   repeat: Infinity,
                   duration: 4,
@@ -137,37 +160,36 @@ export default function FakultasCreate() {
               />
               <FileText className="w-4 h-4 z-10" />
               <h3 className="text-xs font-bold uppercase tracking-wide z-10">
-                Informasi Utama Atribut Fakultas
+                Informasi Utama Atribut Kategori
               </h3>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleUpdate} className="p-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* IMPLEMENTASI KODE GENERATOR DI SINI */}
                 <div className="md:col-span-1">
-                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
-                    Kode Fakultas <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: FIK"
-                    value={form.kode_fakultas}
-                    onChange={(e) =>
-                      setForm({ ...form, kode_fakultas: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-normal text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  <GenerateKategoriAset
+                    label="Kode Kategori"
+                    required
+                    prefixPattern="E-ASSET-CA-"
+                    length={5}
+                    placeholder="Contoh: E-ASSET-CA-12345"
+                    value={form.kode_kategori}
+                    onChange={(val) => setForm({ ...form, kode_kategori: val })}
+                    disabled={isSubmitLoading}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
-                    Nama Fakultas <span className="text-rose-500">*</span>
+                    Nama Kategori <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Contoh: Fakultas Ilmu Komputer"
-                    value={form.nama_fakultas}
+                    placeholder="Contoh: Peralatan Elektronik & IT"
+                    value={form.nama_kategori}
                     onChange={(e) =>
-                      setForm({ ...form, nama_fakultas: e.target.value })
+                      setForm({ ...form, nama_kategori: e.target.value })
                     }
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-normal text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
@@ -179,7 +201,7 @@ export default function FakultasCreate() {
                   Deskripsi / Keterangan
                 </label>
                 <textarea
-                  placeholder="Berikan deskripsi atau cakupan singkat mengenai fakultas ini (opsional)..."
+                  placeholder="Berikan deskripsi atau cakupan singkat mengenai kategori aset ini (opsional)..."
                   rows={5}
                   value={form.deskripsi}
                   onChange={(e) =>
@@ -201,10 +223,10 @@ export default function FakultasCreate() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isSubmitLoading}
                   className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-brand-gradient rounded-md shadow-md shadow-emerald-950/10 hover:brightness-105 active:scale-[0.98] disabled:opacity-50 cursor-pointer transition-all duration-200"
                 >
-                  {isLoading ? (
+                  {isSubmitLoading ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                       <span>Menyimpan...</span>
@@ -212,7 +234,7 @@ export default function FakultasCreate() {
                   ) : (
                     <>
                       <Save className="w-3.5 h-3.5" />
-                      <span>Simpan Fakultas</span>
+                      <span>Simpan Perubahan</span>
                     </>
                   )}
                 </button>

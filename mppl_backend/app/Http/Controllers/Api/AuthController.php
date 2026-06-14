@@ -31,7 +31,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'umum',
-            'profile' => 'default-profile.png',
+            'profile' => 'profiles/default-profile.png',
         ]);
 
         return response()->json([

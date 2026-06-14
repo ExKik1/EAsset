@@ -8,7 +8,7 @@ import api from "../../../utils/api";
 import FakultasHeader from "../../../components/faculties/FakultasHeader";
 import FakultasFilters from "../../../components/faculties/FakultasFilters";
 import FakultasTable from "../../../components/faculties/FakultasTable";
-import FakultasPagination from "../../../components/faculties/FakultasPagination";
+import TablePagination from "../../../components/ui/TablePagination";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { NotificationToast } from "../../../components/ui/NotificationToast";
 
@@ -152,7 +152,7 @@ export default function FakultasPage() {
               onOpenDeleteModal={handleOpenDeleteModal}
             />
 
-            <FakultasPagination
+            <TablePagination
               perPage={perPage}
               setPerPage={setPerPage}
               currentPage={currentPage}

@@ -80,12 +80,12 @@ export default function FakultasTable({
                 <td className="py-3.5 px-4 text-center font-mono text-xs text-slate-400 font-bold">
                   {indexOfFirstItem + index + 1}
                 </td>
-                <td className="py-3.5 px-4 font-bold text-slate-800">
-                  <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-mono text-xs tracking-wider">
+                <td className="py-3.5 px-4 font-semibold text-primary">
+                  <span className="bg-teal-200/40 px-2 py-0.5 rounded border border-slate-200 font-mono text-xs tracking-wider">
                     {item.kode_fakultas}
                   </span>
                 </td>
-                <td className="py-3.5 px-4 font-semibold text-slate-800">
+                <td className="py-3.5 px-4 font-medium text-slate-800">
                   <div className="flex items-center gap-2">
                     <School className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>{item.nama_fakultas}</span>

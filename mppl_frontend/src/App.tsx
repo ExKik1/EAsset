@@ -10,6 +10,9 @@ import NotFound from "./pages/errors/NotFound";
 import LandingPage from "./pages/main/Landing";
 import UserProfile from "./pages/main/UserProfile";
 import DashboardLayout from "./layouts/DashboardLayout";
+import KategoriAsetPage from "./pages/features_role/categories_assets/KategoriAsetPage";
+import KategoriAsetCreate from "./pages/features_role/categories_assets/KategoriAsetCreate";
+import KategoriAsetEdit from "./pages/features_role/categories_assets/KategoriAsetEdit";
 import FakultasPage from "./pages/admin/faculties/FakultasPage";
 import FakultasCreate from "./pages/admin/faculties/FakultasCreate";
 import FakultasEdit from "./pages/admin/faculties/FakultasEdit";
@@ -50,6 +53,16 @@ function App() {
                 <MainContent />
               </DashboardLayout>
             }
+          />
+
+          <Route path="/categories-assets" element={<KategoriAsetPage />} />
+          <Route
+            path="/categories-assets/create"
+            element={<KategoriAsetCreate />}
+          />
+          <Route
+            path="/categories-assets/edit/:id"
+            element={<KategoriAsetEdit />}
           />
 
           <Route path="/faculties" element={<FakultasPage />} />

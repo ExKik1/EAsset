@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { ShieldAlert, Eye, EyeOff } from "lucide-react";
 
@@ -13,15 +14,17 @@ export default function AccountCredentialSection({
   form,
   setForm,
 }: AccountCredentialProps) {
-  // State untuk mengatur visibilitas password
+  const { id } = useParams<{ id: string }>();
   const [showPassword, setShowPassword] = useState(false);
+
+  // Jika URL memiliki parameter ID, berarti aplikasi berada pada mode "Edit"
+  const isEditMode = Boolean(id);
 
   return (
     <motion.div
       variants={variants}
       className="bg-white border border-info-border shadow-md relative"
     >
-      {/* HEADER DIISOLASI DENGAN overflow-hidden */}
       <div className="relative overflow-hidden px-6 py-4 bg-brand-gradient border-b border-slate-200/70 flex items-center gap-2 text-white">
         <motion.div
           animate={{
@@ -42,7 +45,6 @@ export default function AccountCredentialSection({
         </h3>
       </div>
 
-      {/* BODY FORM */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5 relative z-20 overflow-visible">
         <div>
           <label className="block text-xs font-medium text-slate-500 uppercase mb-1.5 tracking-wide">
@@ -59,18 +61,21 @@ export default function AccountCredentialSection({
 
         <div>
           <label className="block text-xs font-medium text-slate-500 uppercase mb-1.5 tracking-wide">
-            Kata Sandi (Password) <span className="text-rose-500">*</span>
+            Kata Sandi (Password){" "}
+            {!isEditMode && <span className="text-rose-500">*</span>}
           </label>
-          {/* Container wrapper dengan tipe relative untuk menahan tombol mata */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Minimal 8 kombinasi karakter..."
+              placeholder={
+                isEditMode
+                  ? "Kosongkan jika tidak ingin mengubah password..."
+                  : "Minimal 8 kombinasi karakter..."
+              }
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full pl-3.5 pr-11 py-2.5 bg-slate-50/50 border border-slate-200 rounded-lg text-sm font-normal text-slate-800 placeholder:text-slate-400/80 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all duration-200"
             />
-            {/* Tombol Toggle Eye Icon */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

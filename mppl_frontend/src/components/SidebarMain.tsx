@@ -150,7 +150,7 @@ export default function SidebarMain({
                   className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6"
                 >
                   <Link
-                    to="/categories"
+                    to="/categories-assets"
                     onClick={onCloseMobile}
                     className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
                   >

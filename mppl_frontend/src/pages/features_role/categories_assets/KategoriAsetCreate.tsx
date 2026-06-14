@@ -14,16 +14,17 @@ import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import api from "../../../utils/api";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { NotificationToast } from "../../../components/ui/NotificationToast";
+import GenerateKategoriAset from "../../../components/categories_assets/GenerateKategoriAset";
 
-export default function FakultasCreate() {
-  useDocumentTitle("Tambah Master Fakultas Baru");
+export default function KategoriCreate() {
+  useDocumentTitle("Tambah Master Kategori Aset Baru");
   const { token } = useAuthSession();
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
-    kode_fakultas: "",
-    nama_fakultas: "",
+    kode_kategori: "",
+    nama_kategori: "",
     deskripsi: "",
   });
 
@@ -32,8 +33,8 @@ export default function FakultasCreate() {
 
   const handleResetForm = () => {
     setForm({
-      kode_fakultas: "",
-      nama_fakultas: "",
+      kode_kategori: "",
+      nama_kategori: "",
       deskripsi: "",
     });
   };
@@ -42,21 +43,20 @@ export default function FakultasCreate() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await api.post("/faculties", form, {
+      await api.post("/categories", form, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setToastType("success");
       setToastMessages([
-        "Fakultas baru sukses ditambahkan ke database master data!",
+        "Kategori aset baru sukses ditambahkan ke database master data!",
       ]);
 
       setTimeout(() => {
-        navigate("/faculties");
+        navigate("/categories-assets");
       }, 1500);
     } catch (err: any) {
       console.error(err);
-
       const dataResponse = err.response?.data;
       let parsedMessages: string[] = [];
 
@@ -68,17 +68,15 @@ export default function FakultasCreate() {
           parsedMessages = nestedErrors;
         } else if (nestedErrors && typeof nestedErrors === "object") {
           parsedMessages = Object.values(nestedErrors).flat() as string[];
-        } else if (Array.isArray(mainMessage)) {
-          parsedMessages = mainMessage;
-        } else if (mainMessage && typeof mainMessage === "object") {
-          parsedMessages = Object.values(mainMessage).flat() as string[];
         } else if (typeof mainMessage === "string") {
           parsedMessages = [mainMessage];
         }
       }
 
       if (parsedMessages.length === 0) {
-        parsedMessages = ["Terjadi galat saat menyimpan data master fakultas."];
+        parsedMessages = [
+          "Terjadi galat saat menyimpan data master kategori aset.",
+        ];
       }
 
       setToastType("danger");
@@ -103,17 +101,17 @@ export default function FakultasCreate() {
               <div className="flex items-center gap-2 mb-1">
                 <PlusCircle className="w-5 h-5 text-primary" />
                 <h3 className="text-xl sm:text-2xl font-black color-span-g tracking-tight">
-                  Tambah Data Fakultas
+                  Tambah Kategori Aset
                 </h3>
               </div>
               <p className="text-slate-500 text-xs sm:text-sm">
-                Formulir pembuatan entitas master data fakultas baru pada
-                lingkungan civitas akademik.
+                Formulir pembuatan entitas master data kategori aset baru pada
+                sistem inventarisasi logistik.
               </p>
             </div>
 
             <Link
-              to="/faculties"
+              to="/categories-assets"
               className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition rounded-md shadow-sm cursor-pointer h-fit self-start sm:self-auto"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -124,10 +122,7 @@ export default function FakultasCreate() {
           <div className="bg-white border border-info-border shadow-md overflow-hidden">
             <div className="relative overflow-hidden px-6 py-4 bg-brand-gradient border-b border-slate-200/70 flex items-center gap-2 text-white">
               <motion.div
-                animate={{
-                  x: ["-100%", "200%"],
-                  opacity: [0, 0.2, 0],
-                }}
+                animate={{ x: ["-100%", "200%"], opacity: [0, 0.2, 0] }}
                 transition={{
                   repeat: Infinity,
                   duration: 4,
@@ -137,37 +132,36 @@ export default function FakultasCreate() {
               />
               <FileText className="w-4 h-4 z-10" />
               <h3 className="text-xs font-bold uppercase tracking-wide z-10">
-                Informasi Utama Atribut Fakultas
+                Informasi Utama Atribut Kategori
               </h3>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* IMPLEMENTASI KODE GENERATOR DI SINI */}
                 <div className="md:col-span-1">
-                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
-                    Kode Fakultas <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: FIK"
-                    value={form.kode_fakultas}
-                    onChange={(e) =>
-                      setForm({ ...form, kode_fakultas: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-normal text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  <GenerateKategoriAset
+                    label="Kode Kategori"
+                    required
+                    prefixPattern="E-ASSET-CA-"
+                    length={5}
+                    placeholder="Contoh: E-ASSET-CA-12345"
+                    value={form.kode_kategori}
+                    onChange={(val) => setForm({ ...form, kode_kategori: val })}
+                    disabled={isLoading}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
-                    Nama Fakultas <span className="text-rose-500">*</span>
+                    Nama Kategori <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Contoh: Fakultas Ilmu Komputer"
-                    value={form.nama_fakultas}
+                    placeholder="Contoh: Peralatan Elektronik & IT"
+                    value={form.nama_kategori}
                     onChange={(e) =>
-                      setForm({ ...form, nama_fakultas: e.target.value })
+                      setForm({ ...form, nama_kategori: e.target.value })
                     }
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-normal text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
@@ -179,7 +173,7 @@ export default function FakultasCreate() {
                   Deskripsi / Keterangan
                 </label>
                 <textarea
-                  placeholder="Berikan deskripsi atau cakupan singkat mengenai fakultas ini (opsional)..."
+                  placeholder="Berikan deskripsi atau cakupan singkat mengenai kategori aset ini (opsional)..."
                   rows={5}
                   value={form.deskripsi}
                   onChange={(e) =>
@@ -212,7 +206,7 @@ export default function FakultasCreate() {
                   ) : (
                     <>
                       <Save className="w-3.5 h-3.5" />
-                      <span>Simpan Fakultas</span>
+                      <span>Simpan Kategori</span>
                     </>
                   )}
                 </button>

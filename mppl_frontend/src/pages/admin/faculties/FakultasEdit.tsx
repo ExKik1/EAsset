@@ -170,7 +170,7 @@ export default function FakultasEdit() {
             <form onSubmit={handleUpdate} className="p-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="md:col-span-1">
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                     Kode Fakultas <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -180,12 +180,12 @@ export default function FakultasEdit() {
                     onChange={(e) =>
                       setForm({ ...form, kode_fakultas: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-semibold text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-normal text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                     Nama Fakultas <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -195,13 +195,13 @@ export default function FakultasEdit() {
                     onChange={(e) =>
                       setForm({ ...form, nama_fakultas: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-semibold text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-normal text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                   Deskripsi / Keterangan
                 </label>
                 <textarea

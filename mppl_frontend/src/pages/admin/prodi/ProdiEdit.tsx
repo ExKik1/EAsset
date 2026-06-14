@@ -229,13 +229,13 @@ export default function ProdiEdit() {
             <form onSubmit={handleUpdate} className="p-6 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="md:col-span-1 relative" ref={dropdownRef}>
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                     Fakultas Induk <span className="text-rose-500">*</span>
                   </label>
 
                   <div
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-semibold text-slate-800 flex items-center justify-between transition-all duration-200 cursor-pointer hover:bg-slate-100/50"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-medium text-slate-800 flex items-center justify-between transition-all duration-200 cursor-pointer hover:bg-slate-100/50"
                   >
                     <span
                       className={
@@ -287,7 +287,7 @@ export default function ProdiEdit() {
                                   setIsDropdownOpen(false);
                                   setSearchQuery("");
                                 }}
-                                className={`px-4 py-2.5 text-xs font-semibold cursor-pointer transition-colors flex items-center justify-between ${
+                                className={`px-4 py-2.5 text-xs font-medium cursor-pointer transition-colors flex items-center justify-between ${
                                   form.fakultas_id === String(f.id)
                                     ? "bg-primary/5 text-primary"
                                     : "text-slate-700 hover:bg-slate-50"
@@ -311,7 +311,7 @@ export default function ProdiEdit() {
                 </div>
 
                 <div className="md:col-span-1">
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                     Kode Prodi <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -322,12 +322,12 @@ export default function ProdiEdit() {
                     onChange={(e) =>
                       setForm({ ...form, kode_prodi: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-semibold text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md font-mono text-sm font-normal text-slate-800 tracking-wide placeholder:font-sans placeholder:font-normal placeholder:normal-case focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
                 </div>
 
                 <div className="md:col-span-1">
-                  <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                  <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                     Nama Program Studi <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -338,13 +338,13 @@ export default function ProdiEdit() {
                     onChange={(e) =>
                       setForm({ ...form, nama_prodi: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-semibold text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-info-border rounded-md text-sm font-normal text-slate-800 placeholder:font-normal focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase mb-1.5 tracking-wide">
+                <label className="block text-xs font-medium text-slate-600 uppercase mb-1.5 tracking-wide">
                   Deskripsi / Keterangan
                 </label>
                 <textarea

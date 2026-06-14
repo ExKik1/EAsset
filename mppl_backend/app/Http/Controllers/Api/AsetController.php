@@ -20,6 +20,7 @@ class AsetController extends Controller
         $request->validate([
             'kode_qr' => 'required|string|unique:aset,kode_qr',
             'nama_barang' => 'required|string',
+            'kode_barang' => 'required|string|unique:aset,kode_barang',
             'kategori_aset_id' => 'required|exists:kategori_aset,id',
             'foto_barang' => 'nullable|string',
             'stok' => 'required|integer|min:0',
@@ -28,6 +29,8 @@ class AsetController extends Controller
             'kode_qr.required' => 'Kode QR wajib diisi.',
             'kode_qr.unique' => 'Kode QR sudah terdaftar pada sistem.',
             'nama_barang.required' => 'Nama barang wajib diisi.',
+            'kode_barang.required' => 'Kode Barang wajib diisi.',
+            'kode_barang.unique' => 'Kode Barang sudah terdaftar pada sistem.',
             'kategori_aset_id.required' => 'Kategori aset wajib dipilih.',
             'kategori_aset_id.exists' => 'Kategori aset tidak valid.',
             'stok.required' => 'Jumlah stok awal wajib ditentukan.',
@@ -74,12 +77,15 @@ class AsetController extends Controller
 
         $request->validate([
             'nama_barang' => 'required|string',
+            'kode_barang' => 'required|string|unique:aset,kode_barang,' . $id,
             'kategori_aset_id' => 'required|exists:kategori_aset,id',
             'stok' => 'required|integer|min:0',
             'status' => 'required|in:tersedia,dipinjam,rusak',
             'deskripsi' => 'nullable|string'
         ], [
             'nama_barang.required' => 'Nama barang wajib diisi.',
+            'kode_barang.required' => 'Kode Barang wajib diisi.',
+            'kode_barang.unique' => 'Kode Barang sudah terdaftar pada sistem.',
             'kategori_aset_id.exists' => 'Kategori tidak valid.',
             'stok.min' => 'Stok tidak boleh kurang dari 0.',
             'status.in' => 'Status barang tidak valid.'

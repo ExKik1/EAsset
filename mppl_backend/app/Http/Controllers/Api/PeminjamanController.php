@@ -15,21 +15,32 @@ class PeminjamanController extends Controller
     {
         $request->validate([
             'kode_qr' => 'required|string',
+            'kode_barang' => 'required|string',
+            'kode_peminjaman' => 'required|string|unique:peminjaman,kode_peminjaman',
             'qty' => 'required|integer|min:1',
             'deskripsi_pinjam' => 'nullable|string',
             'jaminan' => 'required|string'
         ], [
             'kode_qr.required' => 'Scan QR Code barang terlebih dahulu.',
+            'kode_barang.required' => 'Kode barang wajib diisi dan tidak boleh kosong.',
+            'kode_peminjaman.required' => 'Kode peminjaman sistem wajib disertakan.',
+            'kode_peminjaman.unique' => 'Kode peminjaman sudah terdaftar di sistem, gunakan kode lain.',
             'qty.required' => 'Jumlah (qty) barang yang akan dipinjam wajib diisi.',
             'qty.min' => 'Jumlah peminjaman minimal 1 barang.',
             'jaminan.required' => 'Foto jaminan identitas (KTM/KTP) wajib diunggah.'
         ]);
 
         return DB::transaction(function () use ($request) {
-            $aset = Aset::where('kode_qr', $request->kode_qr)->lockForUpdate()->first();
+            $aset = Aset::where('kode_qr', $request->kode_qr)
+                ->where('kode_barang', $request->kode_barang)
+                ->lockForUpdate()
+                ->first();
 
             if (!$aset) {
-                return response()->json(['status' => 'error', 'message' => 'Barang/Aset tidak terdaftar di sistem.'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Barang/Aset dengan kombinasi QR dan Kode Barang tersebut tidak ditemukan.'
+                ], 404);
             }
 
             if ($aset->status === 'rusak') {
@@ -57,13 +68,14 @@ class PeminjamanController extends Controller
                 'qty' => $request->qty,
                 'waktu_pinjam' => now(),
                 'deskripsi_pinjam' => $request->deskripsi_pinjam,
-                'jaminan' => $request->jaminan
+                'jaminan' => $request->jaminan,
+                'kode_peminjaman' => $request->kode_peminjaman
             ]);
 
             LogAudit::create([
                 'user_id' => $request->user()->id,
                 'aksi' => 'CHECKOUT_ASET',
-                'deskripsi' => "Meminjam {$request->qty} item dari {$aset->nama_barang} (QR: {$request->kode_qr})",
+                'deskripsi' => "Meminjam {$request->qty} item dari {$aset->nama_barang} (Barang: {$request->kode_barang}, QR: {$request->kode_qr}) dengan Kode Peminjaman: {$request->kode_peminjaman}",
                 'alamat_ip' => $request->ip()
             ]);
 
@@ -123,7 +135,7 @@ class PeminjamanController extends Controller
             LogAudit::create([
                 'user_id' => $request->user()->id,
                 'aksi' => 'CHECKIN_ASET',
-                'deskripsi' => "Verifikasi pengembalian aset ID: {$aset->id}. Kondisi: {$request->kondisi_kembali}.",
+                'deskripsi' => "Verifikasi pengembalian aset ID: {$aset->id}. Kondisi: {$request->kondisi_kembali} untuk transaksi {$peminjaman->kode_peminjaman}.",
                 'alamat_ip' => $request->ip()
             ]);
 

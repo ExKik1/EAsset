@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode_qr')->unique();
             $table->string('nama_barang');
+            $table->string('kode_barang')->unique();
             $table->foreignId('kategori_aset_id')->constrained('kategori_aset')->onDelete('cascade');
             $table->string('foto_barang')->nullable();
             $table->integer('stok')->default(0);

@@ -8,7 +8,7 @@ import api from "../../../utils/api";
 import ProdiHeader from "../../../components/prodi/ProdiHeader";
 import ProdiFilters from "../../../components/prodi/ProdiFilters";
 import ProdiTable from "../../../components/prodi/ProdiTable";
-import ProdiPagination from "../../../components/prodi/ProdiPagination";
+import TablePagination from "../../../components/ui/TablePagination";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { NotificationToast } from "../../../components/ui/NotificationToast";
 
@@ -161,7 +161,7 @@ export default function ProdiPage() {
               onOpenDeleteModal={handleOpenDeleteModal}
             />
 
-            <ProdiPagination
+            <TablePagination
               perPage={perPage}
               setPerPage={setPerPage}
               currentPage={currentPage}

@@ -12,18 +12,20 @@ class KategoriAsetController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => KategoriAset::all()
+            'data' => KategoriAset::all()->sortByDesc('id')->values()
         ], 200);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama_kategori' => 'required|string|unique:kategori_aset,nama_kategori',
+            'nama_kategori' => 'required|string',
+            'kode_kategori' => 'required|string|unique:kategori_aset,kode_kategori',
             'deskripsi' => 'nullable|string'
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
-            'nama_kategori.unique' => 'Nama kategori tersebut sudah ada.'
+            'kode_kategori.required' => 'Kode kategori wajib diisi.',
+            'kode_kategori.unique' => 'Kode kategori tersebut sudah ada.'
         ]);
 
         $kategori = KategoriAset::create($request->all());
@@ -52,11 +54,13 @@ class KategoriAsetController extends Controller
         }
 
         $request->validate([
-            'nama_kategori' => 'required|string|unique:kategori_aset,nama_kategori,' . $id,
+            'nama_kategori' => 'required|string',
+            'kode_kategori' => 'required|string|unique:kategori_aset,kode_kategori,' . $id,
             'deskripsi' => 'nullable|string'
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
-            'nama_kategori.unique' => 'Nama kategori sudah digunakan.'
+            'kode_kategori.required' => 'Kode kategori wajib diisi.',
+            'kode_kategori.unique' => 'Kode kategori sudah digunakan.'
         ]);
 
         $kategori->update($request->all());

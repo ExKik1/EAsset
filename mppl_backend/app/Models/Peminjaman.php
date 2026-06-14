@@ -13,6 +13,7 @@ class Peminjaman extends Model
         'qty',
         'waktu_pinjam',
         'deskripsi_pinjam',
+        'kode_peminjaman',
         'jaminan',
         'waktu_kembali',
         'kondisi_kembali',
