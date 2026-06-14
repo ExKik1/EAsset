@@ -178,10 +178,10 @@ export default function SidebarMain({
 
       {userRole === "admin" && (
         <Link
-          to="/admin/users"
+          to="/data-users"
           onClick={onCloseMobile}
           className={`flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold transition-all ${
-            location.pathname === "/admin/users"
+            location.pathname === "/data-users"
               ? "bg-emerald-50 text-[#059669]"
               : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           } ${isCollapse ? "lg:justify-center lg:px-0" : ""}`}

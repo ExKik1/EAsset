@@ -16,6 +16,9 @@ import FakultasEdit from "./pages/admin/faculties/FakultasEdit";
 import ProdiPage from "./pages/admin/prodi/ProdiPage";
 import ProdiCreate from "./pages/admin/prodi/ProdiCreate";
 import ProdiEdit from "./pages/admin/prodi/ProdiEdit";
+import UserPage from "./pages/admin/users/UserPage";
+import UserCreate from "./pages/admin/users/UserCreate";
+import UserEdit from "./pages/admin/users/UserEdit";
 
 function App() {
   return (
@@ -56,6 +59,10 @@ function App() {
           <Route path="/prodi" element={<ProdiPage />} />
           <Route path="/prodi/create" element={<ProdiCreate />} />
           <Route path="/prodi/edit/:id" element={<ProdiEdit />} />
+
+          <Route path="/data-users" element={<UserPage />} />
+          <Route path="/data-users/create" element={<UserCreate />} />
+          <Route path="/data-users/edit/:id" element={<UserEdit />} />
 
           <Route path="/history" element={<HistoryLog />} />
           <Route path="/profile" element={<UserProfile />} />
