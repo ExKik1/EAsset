@@ -56,7 +56,7 @@ export default function SearchableSelect({
   );
 
   return (
-    <div className="w-full relative z-30" ref={containerRef}>
+    <div className="w-full relative" ref={containerRef}>
       <label className="block text-xs font-medium text-slate-500 uppercase mb-1.5 tracking-wide">
         {label} {required && <span className="text-rose-500">*</span>}
       </label>

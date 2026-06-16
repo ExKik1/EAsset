@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -37,6 +38,7 @@ class ProfileController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
+
         $request->validate([
             'nim_nip' => 'nullable|string|unique:users,nim_nip,' . $user->id,
             'name' => 'required|string|max:255',
@@ -45,7 +47,7 @@ class ProfileController extends Controller
             'fakultas_id' => 'nullable|exists:fakultas,id',
             'program_studi_id' => 'nullable|exists:program_studi,id',
             'alamat' => 'nullable|string',
-            'profile' => 'nullable|string'
+            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ], [
             'nim_nip.unique' => 'NIM atau NIP sudah terdaftar pada pengguna lain.',
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -55,26 +57,23 @@ class ProfileController extends Controller
             'password.min' => 'Password baru minimal harus 8 karakter.',
             'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
             'fakultas_id.exists' => 'Fakultas yang dipilih tidak valid.',
-            'program_studi_id.exists' => 'Program studi yang dipilih tidak valid.'
+            'program_studi_id.exists' => 'Program studi yang dipilih tidak valid.',
+            'profile.image' => 'File yang diunggah harus berupa gambar.',
+            'profile.max' => 'Ukuran gambar maksimal adalah 2MB.'
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->nim_nip = $request->nim_nip;
+        $user->fakultas_id = $request->fakultas_id;
+        $user->program_studi_id = $request->program_studi_id;
+        $user->alamat = $request->alamat;
 
-        if ($request->filled('nim_nip')) {
-            $user->nim_nip = $request->nim_nip;
-        }
-        if ($request->filled('fakultas_id')) {
-            $user->fakultas_id = $request->fakultas_id;
-        }
-        if ($request->filled('program_studi_id')) {
-            $user->program_studi_id = $request->program_studi_id;
-        }
-        if ($request->filled('alamat')) {
-            $user->alamat = $request->alamat;
-        }
-        if ($request->filled('profile')) {
-            $user->profile = $request->profile;
+        if ($request->hasFile('profile')) {
+            if ($user->profile && $user->profile !== 'profiles/default-profile.png' && Storage::disk('public')->exists($user->profile)) {
+                Storage::disk('public')->delete($user->profile);
+            }
+            $user->profile = $request->file('profile')->store('profiles', 'public');
         }
 
         if ($request->filled('password')) {
@@ -100,6 +99,11 @@ class ProfileController extends Controller
                     'message' => 'Pengguna tidak ditemukan.'
                 ], 404);
             }
+
+            if ($user->profile && $user->profile !== 'profiles/default-profile.png' && Storage::disk('public')->exists($user->profile)) {
+                Storage::disk('public')->delete($user->profile);
+            }
+
             $user->delete();
             return response()->json([
                 'status' => 'success',
@@ -108,6 +112,10 @@ class ProfileController extends Controller
         }
 
         $user = $request->user();
+        if ($user->profile && $user->profile !== 'profiles/default-profile.png' && Storage::disk('public')->exists($user->profile)) {
+            Storage::disk('public')->delete($user->profile);
+        }
+
         $user->tokens()->delete();
         $user->delete();
 

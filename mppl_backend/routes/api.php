@@ -20,6 +20,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/faculties', [AkademikController::class, 'getAllFaculties']);
     Route::get('/faculties/{faculty_id}/prodi', [AkademikController::class, 'getProdiByFaculty']);
+
+
+    // Route::get('/profiles/{id}', [ProfileController::class, 'getProfileById']);
+    Route::get('/profile', [ProfileController::class, 'getAllProfiles']);
     Route::put('/profile/update', [ProfileController::class, 'updateProfile']);
     Route::delete('/profile/delete', [ProfileController::class, 'destroyProfile']);
 
@@ -37,8 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/prodi/{id}', [AkademikController::class, 'showProdi']);
         Route::put('/prodi/{id}', [AkademikController::class, 'updateProdi']);
         Route::delete('/prodi/{id}', [AkademikController::class, 'destroyProdi']);
-
-        Route::delete('/profiles/{id}', [ProfileController::class, 'destroyProfile']);
 
         Route::get('/data-users', [DataUserController::class, 'index']);
         Route::post('/data-users', [DataUserController::class, 'store']);
@@ -63,12 +65,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/assets/{kode_qr}', [AsetController::class, 'update']);
         Route::delete('/assets/{kode_qr}', [AsetController::class, 'destroy']);
         Route::get('/audit-logs', [LogAuditController::class, 'getAuditLogs']);
-
-        Route::get('/profiles', [ProfileController::class, 'getAllProfiles']);
-        Route::get('/profiles/{id}', [ProfileController::class, 'getProfileById']);
-    });
-
-    Route::middleware('role:admin')->group(function () {
-        Route::delete('/assets/{id}', [AsetController::class, 'destroy']);
     });
 });

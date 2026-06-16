@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 import api from "../../utils/api";
@@ -9,16 +9,22 @@ import { ProfileForm } from "../../components/profile/ProfileForm";
 import { DeleteAccountModal } from "../../components/profile/DeleteAccountModal";
 import { NotificationToast } from "../../components/ui/NotificationToast";
 import DashboardLayout from "../../layouts/DashboardLayout";
+import ImageCropModal from "../../components/users/extra/ImageCropModal";
 
-interface Fakultas {
+interface DropdownItem {
   id: number;
-  nama_fakultas: string;
+  nama_fakultas?: string;
+  kode_fakultas?: string;
+  nama_prodi?: string;
+  kode_prodi?: string;
+  fakultas_id?: number;
 }
 
-interface ProgramStudi {
-  id: number;
-  fakultas_id: number;
-  nama_prodi: string;
+interface Area {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export default function UserProfile() {
@@ -27,10 +33,11 @@ export default function UserProfile() {
   const [user, setUser] = useState<any>(null);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [isFetchLoading, setIsFetchLoading] = useState(false);
+  const [isProdiLoading, setIsProdiLoading] = useState(false);
 
-  // State Master Data Berelasi
-  const [fakultasLists, setFakultasLists] = useState<Fakultas[]>([]);
-  const [filteredProdi, setFilteredProdi] = useState<ProgramStudi[]>([]);
+  // Master Data State
+  const [fakultasOptions, setFakultasOptions] = useState<DropdownItem[]>([]);
+  const [prodiOptions, setProdiOptions] = useState<DropdownItem[]>([]);
 
   const [toastConfig, setToastConfig] = useState<{
     messages: string[];
@@ -48,102 +55,190 @@ export default function UserProfile() {
     password_confirmation: "",
   });
 
+  // Guard flag untuk mencegah penghapusan prodi_id saat pertamakali load data profil
+  const isInitialRender = useRef(true);
+
+  // Image Cropper State
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Load Data Fakultas & Sesi Awal User
+  // Helper parsing path gambar dari server storage
+  const getProfileImage = (profilePath: string | null) => {
+    if (!profilePath || profilePath === "default-profile.png" || profilePath.trim() === "") {
+      return null;
+    }
+    if (profilePath.startsWith("http://") || profilePath.startsWith("https://")) {
+      return profilePath;
+    }
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+    return apiBaseUrl.replace("/api", "") + "/storage/" + profilePath;
+  };
+
+  // 1. Load Fakultas dan Data User di awal
   useEffect(() => {
     loadInitialData();
   }, []);
 
-  // Mengambil data Program Studi secara dinamis ketika fakultas_id berubah (Sesuai API Laravel)
+  // 2. Fetch Data Prodi secara dinamis berdasarkan perubahan `fakultas_id`
   useEffect(() => {
     if (formData.fakultas_id) {
-      fetchProdiByFaculty(parseInt(formData.fakultas_id));
+      fetchProdiByFaculty(formData.fakultas_id);
     } else {
-      setFilteredProdi([]);
-      setFormData((prev) => ({ ...prev, program_studi_id: "" }));
+      setProdiOptions([]);
+      if (!isInitialRender.current) {
+        setFormData((prev) => ({ ...prev, program_studi_id: "" }));
+      }
     }
   }, [formData.fakultas_id]);
 
   const loadInitialData = async () => {
     setIsFetchLoading(true);
+    isInitialRender.current = true;
+
     try {
       const token = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
       if (!token) return;
 
-      // 1. Ambil data fakultas dari API
       const fakultasRes = await api.get("/faculties", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setFakultasLists(fakultasRes.data.data || []);
+      setFakultasOptions(fakultasRes.data.data || fakultasRes.data);
 
-      // 2. Ambil data user dari local session atau buat endpoint /user jika data di local storage kurang lengkap
       if (storedUser) {
         const userObj = JSON.parse(storedUser);
         setUser(userObj);
+
+        const fId = userObj.fakultas_id ? String(userObj.fakultas_id) : "";
+        const pId = userObj.program_studi_id ? String(userObj.program_studi_id) : "";
 
         setFormData({
           name: userObj.name || "",
           email: userObj.email || "",
           nim_nip: userObj.nim_nip || "",
           alamat: userObj.alamat || "",
-          fakultas_id: userObj.fakultas_id
-            ? userObj.fakultas_id.toString()
-            : "",
-          program_studi_id: userObj.program_studi_id
-            ? userObj.program_studi_id.toString()
-            : "",
+          fakultas_id: fId,
+          program_studi_id: pId,
           password: "",
           password_confirmation: "",
         });
+
+        if (fId) {
+          await fetchProdiByFaculty(fId, pId);
+        }
+
+        const rawProfile = userObj.profile || userObj.profile_url;
+        const fullyParsedImg = getProfileImage(rawProfile);
+        setImagePreview(fullyParsedImg);
       }
     } catch (err: any) {
-      console.error("Gagal memuat data awal:", err);
+      console.error("Gagal menyinkronkan data profil:", err);
       setToastConfig({
-        messages: ["Gagal menyinkronkan master data dari server."],
+        messages: ["Gagal memuat konfigurasi master data dari server."],
         type: "danger",
       });
     } finally {
       setIsFetchLoading(false);
+      setTimeout(() => {
+        isInitialRender.current = false;
+      }, 300);
     }
   };
 
-  const fetchProdiByFaculty = async (facultyId: number) => {
+  const fetchProdiByFaculty = async (facultyId: string, initialProdiId?: string) => {
+    setIsProdiLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const prodiRes = await api.get(`/faculties/${facultyId}/prodi`, {
+      const res = await api.get(`/faculties/${facultyId}/prodi`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const prodiData = prodiRes.data.data || [];
-      setFilteredProdi(prodiData);
+      
+      const prodiData = res.data.data || [];
+      setProdiOptions(prodiData);
 
-      // Jika prodi yang dipilih sebelumnya tidak ada di fakultas yang baru, reset pilihan prodi
-      if (
-        formData.program_studi_id &&
-        !prodiData.some(
-          (p: any) => p.id === parseInt(formData.program_studi_id),
-        )
-      ) {
-        setFormData((prev) => ({ ...prev, program_studi_id: "" }));
+      if (!isInitialRender.current && !initialProdiId) {
+        const isExist = prodiData.some((p: any) => String(p.id) === String(formData.program_studi_id));
+        if (!isExist) {
+          setFormData((prev) => ({ ...prev, program_studi_id: "" }));
+        }
       }
     } catch (err) {
-      console.error("Gagal memuat data Program Studi:", err);
+      console.error("Gagal memuat data prodi berdasarkan fakultas:", err);
+      setProdiOptions([]);
+    } finally {
+      setIsProdiLoading(false);
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleFileChange = (file: File | null) => {
-    setSelectedFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageSrc(reader.result as string);
+        setIsCropModalOpen(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createCroppedImage = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+    try {
+      const image = new Image();
+      image.src = imageSrc;
+      await new Promise((resolve) => (image.onload = resolve));
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      canvas.width = croppedAreaPixels.width;
+      canvas.height = croppedAreaPixels.height;
+
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height
+      );
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const croppedUrl = URL.createObjectURL(blob);
+        setImagePreview(croppedUrl); // Menampilkan pratinjau gambar baru lokal
+
+        const file = new File([blob], "profile_cropped.png", { type: "image/png" });
+        setSelectedFile(file);
+        setIsCropModalOpen(false);
+      }, "image/png");
+    } catch (e) {
+      console.error("Gagal memotong gambar:", e);
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -156,14 +251,12 @@ export default function UserProfile() {
       if (!token) return;
 
       const data = new FormData();
-      data.append("name", formData.name);
-      data.append("email", formData.email);
-      if (formData.nim_nip) data.append("nim_nip", formData.nim_nip);
-      if (formData.alamat) data.append("alamat", formData.alamat);
-      if (formData.fakultas_id)
-        data.append("fakultas_id", formData.fakultas_id);
-      if (formData.program_studi_id)
-        data.append("program_studi_id", formData.program_studi_id);
+      data.append("name", formData.name.trim());
+      data.append("email", formData.email.trim());
+      data.append("nim_nip", formData.nim_nip ? formData.nim_nip.trim() : "");
+      data.append("alamat", formData.alamat ? formData.alamat.trim() : "");
+      data.append("fakultas_id", formData.fakultas_id);
+      data.append("program_studi_id", formData.program_studi_id);
 
       if (formData.password.trim() !== "") {
         data.append("password", formData.password);
@@ -174,7 +267,6 @@ export default function UserProfile() {
         data.append("profile", selectedFile);
       }
 
-      // Gunakan POST dengan Spoofing Method PUT sesuai konfigurasi API Laravel Anda
       data.append("_method", "PUT");
 
       const response = await api.post("/profile/update", data, {
@@ -184,60 +276,54 @@ export default function UserProfile() {
         },
       });
 
-      const updatedUser =
-        response.data.data || response.data.user || response.data;
+      const responseData = response.data;
+      const updatedUser = responseData.data || responseData.user || responseData;
 
-      if (response.status === 200 || response.data.status === "success") {
+      if (response.status === 200 || responseData.status === "success") {
         setToastConfig({
-          messages: [response.data.message || "Profil berhasil diperbarui."],
+          messages: [responseData.message || "Profil Anda berhasil diperbarui."],
           type: "success",
         });
 
         setUser(updatedUser);
         setSelectedFile(null);
+        setImageSrc(null);
+        
+        // Perbarui preview gambar utama dari server response terbaru
+        const rawProfile = updatedUser.profile || updatedUser.profile_url;
+        setImagePreview(getProfileImage(rawProfile));
+
         setFormData((prev) => ({
           ...prev,
           password: "",
           password_confirmation: "",
         }));
 
-        // Sinkronisasi Data Baru ke LocalStorage agar Sidebar & Navbar ikut berubah secara Real-time
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           const parsed = JSON.parse(storedUser);
-          const newUserSession = {
-            ...parsed,
-            name: updatedUser.name || formData.name,
-            email: updatedUser.email || formData.email,
-            role: updatedUser.role || parsed.role,
-            profile: updatedUser.profile || parsed.profile,
-            nim_nip: updatedUser.nim_nip || formData.nim_nip,
-            alamat: updatedUser.alamat || formData.alamat,
-            fakultas_id: updatedUser.fakultas_id || formData.fakultas_id,
-            program_studi_id:
-              updatedUser.program_studi_id || formData.program_studi_id,
-          };
+          const newUserSession = { ...parsed, ...updatedUser };
           localStorage.setItem("user", JSON.stringify(newUserSession));
         }
 
-        // Trigger Event Storage secara lokal agar didengar oleh DashboardLayout
         window.dispatchEvent(new Event("storage"));
       }
     } catch (err: any) {
       console.error(err);
+      const dataResponse = err.response?.data;
+      let parsedMessages: string[] = [];
+
       if (err.response && err.response.status === 422) {
-        const allErrors = Object.values(
-          err.response.data.errors || {},
-        ).flat() as string[];
-        setToastConfig({
-          messages: allErrors.length > 0 ? allErrors : ["Validasi data gagal."],
-          type: "danger",
-        });
+        const nestedErrors = dataResponse?.errors;
+        if (typeof nestedErrors === "object" && nestedErrors !== null) {
+          parsedMessages = Object.values(nestedErrors).flat() as string[];
+        } else {
+          parsedMessages = [dataResponse?.message || "Validasi gagal."];
+        }
+        setToastConfig({ messages: parsedMessages, type: "danger" });
       } else {
         setToastConfig({
-          messages: [
-            err.response?.data?.message || "Terjadi kesalahan sistem.",
-          ],
+          messages: [dataResponse?.message || "Terjadi kesalahan sistem."],
           type: "danger",
         });
       }
@@ -252,7 +338,6 @@ export default function UserProfile() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // Endpoint disesuaikan dengan Laravel: /profile/delete
       const response = await api.delete("/profile/delete", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -263,7 +348,11 @@ export default function UserProfile() {
           messages: ["Akun Anda telah berhasil dihapus secara permanen."],
           type: "success",
         });
-        setTimeout(() => handleLogout(), 2000);
+        setTimeout(() => {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.replace("/auth/login");
+        }, 2000);
       }
     } catch (err: any) {
       setToastConfig({
@@ -273,12 +362,6 @@ export default function UserProfile() {
     } finally {
       setIsSubmitLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.replace("/auth/login");
   };
 
   return (
@@ -293,28 +376,29 @@ export default function UserProfile() {
             />
           )}
 
-          <UserProfileHeader
-            isFetchLoading={isFetchLoading}
-            onRefresh={loadInitialData}
-          />
+          <UserProfileHeader isFetchLoading={isFetchLoading} onRefresh={loadInitialData} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* KARTU SUMMARY - SEKARANG MENERIMA PROP FILE CHANGE YANG TEPAT */}
             <UserSummaryCard
               userName={user?.name || "User"}
               email={user?.email || ""}
               role={user?.role || "umum"}
-              profileUrl={user?.profile}
+              profileUrl={imagePreview} 
               onOpenDeleteModal={() => setIsDeleteModalOpen(true)}
+              onFileChange={handleFileChange}
+              isImageSelected={!!selectedFile}
             />
 
             <ProfileForm
               formData={formData}
-              fakultasLists={fakultasLists}
-              filteredProdi={filteredProdi}
+              fakultasLists={fakultasOptions}
+              prodiLists={prodiOptions}
               isFetchLoading={isFetchLoading}
+              isProdiLoading={isProdiLoading}
               isSubmitLoading={isSubmitLoading}
               onInputChange={handleInputChange}
-              onFileChange={handleFileChange}
+              onSelectChange={handleSelectChange}
               onSubmit={handleUpdateProfile}
             />
           </div>
@@ -326,6 +410,25 @@ export default function UserProfile() {
                 isSubmitLoading={isSubmitLoading}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirmDelete={handleDeleteAccountSubmit}
+              />
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {isCropModalOpen && imageSrc && (
+              <ImageCropModal
+                isOpen={isCropModalOpen}
+                imageSrc={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                setCrop={setCrop}
+                setZoom={setZoom}
+                onCropComplete={onCropComplete}
+                onClose={() => {
+                  setIsCropModalOpen(false);
+                  setImageSrc(null);
+                }}
+                onApply={createCroppedImage}
               />
             )}
           </AnimatePresence>

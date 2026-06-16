@@ -41,12 +41,28 @@ export default function DashboardLayout({
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  const token = localStorage.getItem("token");
+
+  try {
+    if (token) {
+      await fetch("http://localhost:8000/api/auth/logout", { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`, 
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Gagal menghubungi server saat logout:", error);
+  } finally {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    console.log("Logout triggered");
     navigate("/auth/login");
-  };
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">

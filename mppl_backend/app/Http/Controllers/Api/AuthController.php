@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -34,6 +34,15 @@ class AuthController extends Controller
             'profile' => 'profiles/default-profile.png',
         ]);
 
+        DB::table('log_audit')->insert([
+            'user_id' => $user->id,
+            'aksi' => 'REGISTRASI',
+            'deskripsi' => "Pengguna baru berhasil mendaftar dengan nama: {$user->name} ({$user->email})",
+            'alamat_ip' => $request->ip(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Registrasi akun E-Asset berhasil.',
@@ -55,6 +64,15 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            DB::table('log_audit')->insert([
+                'user_id' => null,
+                'aksi' => 'GAGAL LOGIN',
+                'deskripsi' => "Percobaan login gagal pada email: {$request->email}",
+                'alamat_ip' => $request->ip(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Kredensial login salah. Silakan periksa kembali Email dan Password Anda.'
@@ -62,6 +80,15 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('e_asset_token')->plainTextToken;
+
+        DB::table('log_audit')->insert([
+            'user_id' => $user->id,
+            'aksi' => 'LOGIN',
+            'deskripsi' => "Pengguna {$user->name} ({$user->role}) berhasil masuk ke dalam sistem.",
+            'alamat_ip' => $request->ip(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         return response()->json([
             'status' => 'success',
@@ -74,7 +101,17 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        DB::table('log_audit')->insert([
+            'user_id' => $user->id,
+            'aksi' => 'LOGOUT',
+            'deskripsi' => "Pengguna {$user->name} berhasil keluar dari sistem.",
+            'alamat_ip' => $request->ip(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $user->currentAccessToken()->delete();
 
         return response()->json([
             'status' => 'success',

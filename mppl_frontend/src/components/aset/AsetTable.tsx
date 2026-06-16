@@ -6,6 +6,7 @@ import {
   RefreshCw,
   QrCode,
   Image as ImageIcon,
+  Eye, // Ditambahkan untuk ikon Detail/Show
 } from "lucide-react";
 import { motion } from "motion/react";
 import QRCode from "react-qr-code";
@@ -69,11 +70,9 @@ export default function AsetTable({
   };
 
   return (
-    /* Menambahkan sedikit padding vertikal ekstra di container luar jika data sedikit */
-    <div className="overflow-x-auto w-full pb-4 ">
+    <div className="overflow-x-auto w-full pb-4">
       <table className="w-full text-left border-collapse table-auto whitespace-nowrap">
         <thead className="relative bg-brand-gradient text-white overflow-hidden">
-          {/* Efek Animasi Kilau (Shimmer) Sesuai Referensi */}
           <tr className="absolute inset-0 pointer-events-none overflow-hidden block w-full h-full">
             <td
               colSpan={9}
@@ -96,19 +95,11 @@ export default function AsetTable({
 
           <tr className="border-b border-white/10 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
             <th className="py-3.5 px-4 w-12 text-center text-white">No</th>
-            <th className="py-3.5 px-4 w-20 text-center text-white">
-              QR Label
-            </th>
+            <th className="py-3.5 px-4 w-20 text-center text-white">QR Label</th>
             <th className="py-3.5 px-4 w-16 text-center text-white">Foto</th>
-            <th className="py-3.5 px-5 min-w-[200px] text-white">
-              Informasi Barang
-            </th>
-            <th className="py-3.5 px-5 min-w-[150px] text-white">
-              Kode Registrasi
-            </th>
-            <th className="py-3.5 px-5 min-w-[180px] text-white">
-              Kategori Klasifikasi
-            </th>
+            <th className="py-3.5 px-5 min-w-[200px] text-white">Informasi Barang</th>
+            <th className="py-3.5 px-5 min-w-[150px] text-white">Kode Registrasi</th>
+            <th className="py-3.5 px-5 min-w-[180px] text-white">Kategori Klasifikasi</th>
             <th className="py-3.5 px-5 w-16 text-center text-white">Stok</th>
             <th className="py-3.5 px-5 w-24 text-center text-white">Status</th>
             <th className="py-3.5 px-4 w-24 text-center text-white">Aksi</th>
@@ -130,13 +121,11 @@ export default function AsetTable({
             </tr>
           ) : currentData.length > 0 ? (
             currentData.map((item, index) => {
-              {/* Logika untuk menentukan apakah item berada di setengah atas atau setengah bawah tabel */}
               const isHalfBottom = index >= currentData.length / 2;
 
               return (
                 <tr
                   key={item.id}
-                  /* Perbaikan Z-Index: tr diberikan relative & hover:z-50 agar popover naik ke atas baris lain */
                   className="hover:bg-slate-50/70 transition-colors relative hover:z-50"
                 >
                   {/* No */}
@@ -156,8 +145,6 @@ export default function AsetTable({
                           size={36}
                           viewBox={`0 0 250 250`}
                         />
-                        
-                        {/* Perbaikan Popover QR: Menggunakan kondisi isHalfBottom */}
                         <div
                           className={`absolute hidden group-hover:flex left-1/2 -translate-x-1/2 p-2 bg-white border border-slate-200 shadow-xl rounded z-50 transition-all
                             ${isHalfBottom ? "bottom-full mb-1" : "top-full mt-1"}`}
@@ -189,12 +176,16 @@ export default function AsetTable({
                     </div>
                   </td>
 
-                  {/* Informasi Barang */}
+                  {/* Informasi Barang + Tautan Klik Nama */}
                   <td className="py-3.5 px-5">
                     <div className="flex flex-col">
-                      <span className="text-slate-800 font-semibold text-sm">
+                      <Link
+                        to={`/assets/show/${item.kode_qr}`}
+                        className="text-slate-800 font-semibold text-sm hover:text-emerald-600 transition-colors inline-block max-w-max"
+                        title="Lihat Detail Aset"
+                      >
                         {item.nama_barang}
-                      </span>
+                      </Link>
                       <span
                         className="text-[11px] text-slate-400 font-normal max-w-xs truncate"
                         title={item.deskripsi || ""}
@@ -243,9 +234,16 @@ export default function AsetTable({
                     {getStatusBadge(item.status)}
                   </td>
 
-                  {/* Aksi */}
+                  {/* Aksi (Ditambahkan Tombol Show/Detail) */}
                   <td className="py-3.5 px-4 text-center">
                     <div className="flex items-center justify-center gap-1.5">
+                      <Link
+                        to={`/assets/show/${item.kode_qr}`}
+                        className="p-1.5 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded hover:bg-emerald-100 transition cursor-pointer"
+                        title="Lihat Spesifikasi Detail"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
                       <Link
                         to={`/assets/edit/${item.kode_qr}`}
                         className="p-1.5 text-blue-600 bg-blue-50 border border-blue-100 rounded hover:bg-blue-100 transition cursor-pointer"
