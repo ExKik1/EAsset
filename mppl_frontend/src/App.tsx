@@ -13,6 +13,10 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import KategoriAsetPage from "./pages/features_role/categories_assets/KategoriAsetPage";
 import KategoriAsetCreate from "./pages/features_role/categories_assets/KategoriAsetCreate";
 import KategoriAsetEdit from "./pages/features_role/categories_assets/KategoriAsetEdit";
+import AsetPage from "./pages/features_role/aset/AsetPage";
+import AsetCreate from "./pages/features_role/aset/AsetCreate";
+import AsetEdit from "./pages/features_role/aset/AsetEdit";
+import AsetDetail from "./pages/features_role/aset/AsetDetail";
 import FakultasPage from "./pages/admin/faculties/FakultasPage";
 import FakultasCreate from "./pages/admin/faculties/FakultasCreate";
 import FakultasEdit from "./pages/admin/faculties/FakultasEdit";
@@ -64,6 +68,11 @@ function App() {
             path="/categories-assets/edit/:id"
             element={<KategoriAsetEdit />}
           />
+
+          <Route path="/assets" element={<AsetPage />} />
+          <Route path="/assets/create" element={<AsetCreate />} />
+          <Route path="/assets/edit/:kode_qr" element={<AsetEdit />} />
+          <Route path="/assets/show/:kode_qr" element={<AsetDetail />} />
 
           <Route path="/faculties" element={<FakultasPage />} />
           <Route path="/faculties/create" element={<FakultasCreate />} />

@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile/delete', [ProfileController::class, 'destroyProfile']);
 
     Route::post('/borrowing/checkout', [PeminjamanController::class, 'checkout']);
-    Route::get('/assets/scan/{kode_qr}', [AsetController::class, 'showByQr']);
+    // Route::get('/assets/scan/{kode_qr}', [AsetController::class, 'showByQr']);
 
     Route::middleware('role:admin')->group(function () {
         Route::post('/faculties', [AkademikController::class, 'storeFaculty']);
@@ -59,7 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/assets', [AsetController::class, 'index']);
         Route::post('/assets', [AsetController::class, 'store']);
-        Route::put('/assets/{id}', [AsetController::class, 'update']);
+        Route::get('/assets/{kode_qr}', [AsetController::class, 'show']);
+        Route::put('/assets/{kode_qr}', [AsetController::class, 'update']);
+        Route::delete('/assets/{kode_qr}', [AsetController::class, 'destroy']);
         Route::get('/audit-logs', [LogAuditController::class, 'getAuditLogs']);
 
         Route::get('/profiles', [ProfileController::class, 'getAllProfiles']);
