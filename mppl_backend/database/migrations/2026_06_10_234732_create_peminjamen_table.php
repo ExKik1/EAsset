@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('qty');
             $table->dateTime('waktu_pinjam');
             $table->text('deskripsi_pinjam')->nullable();
-            $table->string('jaminan');
             $table->string('kode_peminjaman')->unique();
+            $table->string('jaminan');
             $table->dateTime('waktu_kembali')->nullable();
             $table->enum('kondisi_kembali', ['bagus', 'rusak'])->nullable();
             $table->string('foto_baru')->nullable();

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AkademikController;
 use App\Http\Controllers\Api\KategoriAsetController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DataUserController;
 use App\Http\Controllers\Api\AsetController;
 use App\Http\Controllers\Api\ProfileController;
@@ -21,14 +22,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/faculties', [AkademikController::class, 'getAllFaculties']);
     Route::get('/faculties/{faculty_id}/prodi', [AkademikController::class, 'getProdiByFaculty']);
 
-
-    // Route::get('/profiles/{id}', [ProfileController::class, 'getProfileById']);
     Route::get('/profile', [ProfileController::class, 'getAllProfiles']);
     Route::put('/profile/update', [ProfileController::class, 'updateProfile']);
     Route::delete('/profile/delete', [ProfileController::class, 'destroyProfile']);
 
-    Route::post('/borrowing/checkout', [PeminjamanController::class, 'checkout']);
-    // Route::get('/assets/scan/{kode_qr}', [AsetController::class, 'showByQr']);
+    Route::get('/assets-main', [AsetController::class, 'indexUsers']);
+    Route::get('/assets-main/detail/{kode_barang}', [AsetController::class, 'showUsers']);
+
+    Route::get('/assets-main/{kode_qr}', [PeminjamanController::class, 'validateQrCode']);
+    Route::post('/borrowing-main/checkout', [PeminjamanController::class, 'checkout']);
+    Route::get('/borrowing-main/history', [PeminjamanController::class, 'getHistory']);
+
 
     Route::middleware('role:admin')->group(function () {
         Route::post('/faculties', [AkademikController::class, 'storeFaculty']);
@@ -50,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:admin,kerumahtanggaan')->group(function () {
+        Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+
         Route::post('/borrowing/checkin', [PeminjamanController::class, 'checkin']);
         Route::get('/borrowing/history', [PeminjamanController::class, 'getHistory']);
 

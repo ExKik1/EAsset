@@ -19,6 +19,15 @@ class AsetController extends Controller
         ], 200);
     }
 
+    public function indexUsers()
+    {
+        $aset = Aset::with('kategoriAset')->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $aset
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -77,6 +86,23 @@ class AsetController extends Controller
     public function show($kode_qr)
     {
         $aset = Aset::with('kategoriAset')->where('kode_qr', $kode_qr)->first();
+
+        if (!$aset) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Aset dengan Kode QR tersebut tidak ditemukan di sistem E-Asset.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $aset
+        ], 200);
+    }
+
+    public function showUsers($kode_barang)
+    {
+        $aset = Aset::with('kategoriAset')->where('kode_barang', $kode_barang)->first();
 
         if (!$aset) {
             return response()->json([
