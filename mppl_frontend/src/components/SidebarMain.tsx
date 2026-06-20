@@ -12,6 +12,7 @@ import {
   Layers,
   History,
   ShieldCheck,
+  ScanLine,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -61,8 +62,225 @@ export default function SidebarMain({
         <span className={isCollapse ? "lg:hidden" : "block"}>Dashboard</span>
       </Link>
 
-      {/* 2. MENU SIRKULASI (Admin & Kerumahtanggaan) */}
+      {/* 2. SCAN QR ASET — Semua Role (admin, kerumahtanggaan, umum) */}
+      <Link
+        to="/scan-qr"
+        onClick={onCloseMobile}
+        className={`flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold transition-all ${
+          location.pathname === "/scan-qr"
+            ? "bg-blue-50 text-[#0b2f9f]"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        } ${isCollapse ? "lg:justify-center lg:px-0" : ""}`}
+        title="Scan QR Aset"
+      >
+        <ScanLine className="w-5 h-5 shrink-0 text-[#0b2f9f]" />
+        <span className={isCollapse ? "lg:hidden" : "block"}>Scan QR Aset</span>
+      </Link>
+
+      {/* 3. MENU SIRKULASI (Admin & Kerumahtanggaan) */}
       {(userRole === "admin" || userRole === "kerumahtanggaan") && (
+        <div>
+          <button
+            onClick={() => toggleSubMenu("sirkulasi")}
+            className={`w-full flex items-center justify-between gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer ${
+              isCollapse ? "lg:justify-center lg:px-0" : ""
+            }`}
+            title="Sirkulasi Peminjaman"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <QrCode className="w-5 h-5 shrink-0 text-emerald-600" />
+              <span className={isCollapse ? "lg:hidden" : "block truncate"}>
+                Sirkulasi Aset
+              </span>
+            </div>
+            {!isCollapse && (
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  openSubMenus["sirkulasi"] ? "rotate-180 text-[#059669]" : ""
+                }`}
+              />
+            )}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {openSubMenus["sirkulasi"] &&
+              (!isCollapse || window.innerWidth < 1024) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6"
+                >
+                  <Link
+                    to="/borrowing/checkin"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Proses Checkin QR
+                  </Link>
+                  <Link
+                    to="/borrowing/history"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Riwayat Sirkulasi
+                  </Link>
+                </motion.div>
+              )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* 4. KATALOG DATA ASET (Admin & Kerumahtanggaan) */}
+      {(userRole === "admin" || userRole === "kerumahtanggaan") && (
+        <div>
+          <button
+            onClick={() => toggleSubMenu("masterAset")}
+            className={`w-full flex items-center justify-between gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer ${
+              isCollapse ? "lg:justify-center lg:px-0" : ""
+            }`}
+            title="Katalog & Inventaris"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <Layers className="w-5 h-5 shrink-0" />
+              <span className={isCollapse ? "lg:hidden" : "block truncate"}>
+                Katalog Aset
+              </span>
+            </div>
+            {!isCollapse && (
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  openSubMenus["masterAset"] ? "rotate-180 text-[#059669]" : ""
+                }`}
+              />
+            )}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {openSubMenus["masterAset"] &&
+              (!isCollapse || window.innerWidth < 1024) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6"
+                >
+                  <Link
+                    to="/categories-assets"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Kategori Aset
+                  </Link>
+                  <Link
+                    to="/assets"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Daftar Barang
+                  </Link>
+                  <Link
+                    to="/audit-logs"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Log Audit Sistem
+                  </Link>
+                </motion.div>
+              )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* 5. DATA PENGGUNA (Admin Only) */}
+      {userRole === "admin" && (
+        <Link
+          to="/data-users"
+          onClick={onCloseMobile}
+          className={`flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold transition-all ${
+            location.pathname === "/data-users"
+              ? "bg-emerald-50 text-[#059669]"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          } ${isCollapse ? "lg:justify-center lg:px-0" : ""}`}
+          title="Kelola Data Pengguna"
+        >
+          <Users2 className="w-5 h-5 shrink-0" />
+          <span className={isCollapse ? "lg:hidden" : "block"}>
+            Data Pengguna
+          </span>
+        </Link>
+      )}
+
+      {/* 6. DATA AKADEMIK KAMPUS (Admin Only) */}
+      {userRole === "admin" && (
+        <div>
+          <button
+            onClick={() => toggleSubMenu("akademik")}
+            className={`w-full flex items-center justify-between gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer ${
+              isCollapse ? "lg:justify-center lg:px-0" : ""
+            }`}
+            title="Struktur Institusi Kampus"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <FolderTree className="w-5 h-5 shrink-0" />
+              <span className={isCollapse ? "lg:hidden" : "block truncate"}>
+                Data Kampus
+              </span>
+            </div>
+            {!isCollapse && (
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  openSubMenus["akademik"] ? "rotate-180 text-[#059669]" : ""
+                }`}
+              />
+            )}
+          </button>
+
+          <AnimatePresence initial={false}>
+            {openSubMenus["akademik"] &&
+              (!isCollapse || window.innerWidth < 1024) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6"
+                >
+                  <Link
+                    to="/faculties"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Fakultas
+                  </Link>
+                  <Link
+                    to="/prodi"
+                    onClick={onCloseMobile}
+                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                  >
+                    Program Studi
+                  </Link>
+                </motion.div>
+              )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* 7. SETTING PROFILE — Semua Role */}
+      <Link
+        to="/profile"
+        onClick={onCloseMobile}
+        className={`flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold transition-all ${
+          location.pathname === "/profile"
+            ? "bg-emerald-50 text-[#059669]"
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        } ${isCollapse ? "lg:justify-center lg:px-0" : ""}`}
+        title="Pengaturan Profil"
+      >
+        <Settings className="w-5 h-5 shrink-0" />
+        <span className={isCollapse ? "lg:hidden" : "block"}>Profil</span>
+      </Link>
+    </nav>
+  );
         <div>
           <button
             onClick={() => toggleSubMenu("sirkulasi")}

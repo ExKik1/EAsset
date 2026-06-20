@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AsetController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\PeminjamanController;
 use App\Http\Controllers\Api\LogAuditController;
+use App\Http\Controllers\Api\ScanQrController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -18,6 +19,10 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    // ── QR SCANNER — Semua user login (admin, kerumahtanggaan, umum) ────────
+    Route::get('/scan-qr/{kode_qr}', [ScanQrController::class, 'scan']);
+    Route::post('/scan-qr/validate', [ScanQrController::class, 'validate']);
 
     Route::get('/faculties', [AkademikController::class, 'getAllFaculties']);
     Route::get('/faculties/{faculty_id}/prodi', [AkademikController::class, 'getProdiByFaculty']);

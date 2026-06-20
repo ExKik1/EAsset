@@ -7,6 +7,7 @@ import RoleMiddleware from "./middleware/RoleMiddleware"; // Impor middleware ro
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import MainContent from "./pages/main/MainContent";
+import QrScanPage from "./pages/main/QrScanPage";
 import HistoryLog from "./pages/main/HistoryLog";
 import NotFound from "./pages/errors/NotFound";
 import Forbidden from "./pages/errors/Forbidden"; 
@@ -61,6 +62,14 @@ function App() {
             element={
               <DashboardLayout>
                 <MainContent />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/scan-qr"
+            element={
+              <DashboardLayout>
+                <QrScanPage />
               </DashboardLayout>
             }
           />
