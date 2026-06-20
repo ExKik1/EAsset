@@ -36,6 +36,7 @@ export default function SidebarMain({
   const location = useLocation();
   const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>({
     sirkulasi: false,
+    sirkulasiUmum: false,
     masterAset: false,
     akademik: false,
   });
@@ -89,44 +90,58 @@ export default function SidebarMain({
           >
             <div className="flex items-center gap-3 min-w-0">
               <QrCode className="w-5 h-5 shrink-0 text-emerald-600" />
-              <span className={isCollapse ? "lg:hidden" : "block truncate"}>
-                Sirkulasi Aset
-              </span>
+              <span className={isCollapse ? "lg:hidden" : "block truncate"}>Sirkulasi Aset</span>
             </div>
             {!isCollapse && (
-              <ChevronDown
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  openSubMenus["sirkulasi"] ? "rotate-180 text-[#059669]" : ""
-                }`}
-              />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openSubMenus["sirkulasi"] ? "rotate-180 text-[#059669]" : ""}`} />
             )}
           </button>
-
           <AnimatePresence initial={false}>
-            {openSubMenus["sirkulasi"] &&
-              (!isCollapse || window.innerWidth < 1024) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6"
-                >
-                  <Link
-                    to="/borrowing/checkin"
-                    onClick={onCloseMobile}
-                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
-                  >
-                    Proses Checkin QR
-                  </Link>
-                  <Link
-                    to="/borrowing/history"
-                    onClick={onCloseMobile}
-                    className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
-                  >
-                    Riwayat Sirkulasi
-                  </Link>
-                </motion.div>
-              )}
+            {openSubMenus["sirkulasi"] && (!isCollapse || window.innerWidth < 1024) && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6">
+                <Link to="/borrowing/checkin" onClick={onCloseMobile}
+                  className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900">
+                  Proses Checkin QR
+                </Link>
+                <Link to="/borrowing/history" onClick={onCloseMobile}
+                  className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900">
+                  Riwayat Sirkulasi
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* 3b. MENU SIRKULASI untuk User Umum */}
+      {userRole === "umum" && (
+        <div>
+          <button onClick={() => toggleSubMenu("sirkulasiUmum")}
+            className={`w-full flex items-center justify-between gap-3 py-2.5 px-3.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer ${isCollapse ? "lg:justify-center lg:px-0" : ""}`}
+            title="Sirkulasi Peminjaman">
+            <div className="flex items-center gap-3 min-w-0">
+              <QrCode className="w-5 h-5 shrink-0 text-emerald-600" />
+              <span className={isCollapse ? "lg:hidden" : "block truncate"}>Sirkulasi Aset</span>
+            </div>
+            {!isCollapse && (
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${openSubMenus["sirkulasiUmum"] ? "rotate-180 text-[#059669]" : ""}`} />
+            )}
+          </button>
+          <AnimatePresence initial={false}>
+            {openSubMenus["sirkulasiUmum"] && (!isCollapse || window.innerWidth < 1024) && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden pl-9 mt-1 space-y-1 border-l border-slate-100 ml-6">
+                <Link to="/borrowing/checkout" onClick={onCloseMobile}
+                  className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900">
+                  Ajukan Peminjaman
+                </Link>
+                <Link to="/borrowing/history" onClick={onCloseMobile}
+                  className="block py-2 px-3 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900">
+                  Riwayat Saya
+                </Link>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       )}

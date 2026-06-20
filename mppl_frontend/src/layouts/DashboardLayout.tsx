@@ -46,7 +46,7 @@ export default function DashboardLayout({
 
   try {
     if (token) {
-      await fetch("http://localhost:8000/api/auth/logout", { 
+      await fetch("http://localhost:8080/api/auth/logout", { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
